@@ -1,0 +1,2961 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ベルセデスメンツ | LIVE LOG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#111215;
+    --surface:#1a1c20;
+    --surface-2:#232529;
+    --chrome:#cdd1d7;
+    --chrome-dim:#7d8288;
+    --accent:#e2091c;
+    --accent-dim:#5c1015;
+    --text:#f4f3ef;
+    --text-dim:#9aa0a6;
+    --line: rgba(205,209,215,0.14);
+    --font-display:'Oswald',sans-serif;
+    --font-body:'Inter',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--font-body);}
+  body{min-height:100vh;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+  input,textarea{font-family:inherit;}
+
+  #app{max-width:880px;margin:0 auto;padding:0 20px 80px;position:relative;}
+
+  /* ---------- top bar ---------- */
+  .topbar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:16px 0;background:linear-gradient(var(--bg) 82%, transparent);}
+  .brandmark{font-family:var(--font-display);font-weight:600;font-size:15px;letter-spacing:0.16em;color:var(--chrome-dim);text-transform:uppercase;}
+  /* ---------- hero ---------- */
+  .hero{padding:28px 0 36px;border-bottom:1px solid var(--line);}
+  .hero-title{font-family:var(--font-display);font-weight:700;font-size:clamp(34px,7vw,58px);letter-spacing:0.01em;line-height:0.98;margin:0 0 6px;
+    background:linear-gradient(135deg,#fff 0%, var(--chrome) 35%, #6a6e74 55%, var(--chrome) 75%, #fff 100%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;}
+  .hero-sub{font-family:var(--font-mono);font-size:12px;letter-spacing:0.15em;color:var(--text-dim);text-transform:uppercase;margin-bottom:22px;}
+  .save-warn-banner{position:fixed;left:0;right:0;bottom:0;z-index:999;background:#3a0505;color:#ffb4b4;border-top:1px solid var(--accent-dim);padding:12px 16px;font-family:var(--font-mono);font-size:12px;text-align:center;}
+
+  .quick-nav{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 4px;}
+  .quick-nav-item{font-family:var(--font-mono);font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-dim);background:var(--surface);border:1px solid var(--line);padding:8px 14px;border-radius:2px;}
+  .quick-nav-item:hover{color:var(--text);border-color:var(--chrome-dim);}
+
+  /* ---------- section label ---------- */
+  .section-label{display:flex;align-items:center;gap:10px;margin:36px 0 16px;}
+  .section-label span{font-family:var(--font-mono);font-size:11px;letter-spacing:0.22em;color:var(--chrome-dim);text-transform:uppercase;white-space:nowrap;}
+  .section-label::after{content:"";flex:1;height:1px;background:var(--line);}
+
+  /* ---------- schedule cards ---------- */
+  .card-list{display:flex;flex-direction:column;gap:10px;}
+  .card{position:relative;display:flex;gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:2px;padding:14px 16px;cursor:pointer;transition:border-color .15s, background .15s;overflow:hidden;}
+  .card:hover{border-color:var(--chrome-dim);background:var(--surface-2);}
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent-bar,var(--chrome-dim));}
+  .card.upcoming::before{background:var(--accent);}
+  .dateblock{font-family:var(--font-mono);min-width:74px;text-align:center;padding-right:14px;border-right:1px solid var(--line);}
+  .dateblock .day{font-size:24px;font-weight:700;color:var(--text);line-height:1;}
+  .dateblock .ym{font-size:10px;color:var(--text-dim);letter-spacing:0.08em;margin-top:4px;}
+  .cardbody{flex:1;min-width:0;}
+  .card-title{font-family:var(--font-display);font-weight:600;font-size:17px;letter-spacing:0.01em;color:var(--text);text-transform:uppercase;margin-bottom:3px;}
+  .card-venue{font-size:12.5px;color:var(--text-dim);}
+  .card-del{position:absolute;right:12px;bottom:10px;background:none;border:none;color:var(--text-dim);font-size:16px;padding:2px 6px;}
+  .card-del:hover{color:var(--accent);}
+  .empty-state{padding:30px 4px;color:var(--text-dim);font-size:13px;border:1px dashed var(--line);border-radius:2px;text-align:center;}
+
+  .year-group{margin-bottom:10px;}
+  .year-header{display:flex;align-items:center;gap:10px;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:2px;padding:12px 16px;font-family:var(--font-display);font-size:16px;letter-spacing:0.02em;color:var(--text);text-align:left;}
+  .year-header:hover{border-color:var(--chrome-dim);background:var(--surface-2);}
+  .year-header-static{cursor:default;}
+  .year-header-static:hover{border-color:var(--line);background:var(--surface);}
+  .year-chevron{color:var(--accent);font-size:12px;width:12px;}
+  .year-count{margin-left:auto;font-family:var(--font-mono);font-size:11px;color:var(--text-dim);letter-spacing:0.05em;}
+  .year-group .card-list{margin-top:8px;}
+
+  /* ---------- add-live form ---------- */
+  .inline-form{background:var(--surface);border:1px solid var(--line);border-radius:2px;padding:16px;margin-bottom:14px;display:flex;flex-direction:column;gap:10px;}
+  .form-row{display:flex;gap:10px;flex-wrap:wrap;}
+  .form-row label{flex:1;min-width:120px;display:flex;flex-direction:column;gap:5px;font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;color:var(--chrome-dim);text-transform:uppercase;}
+  .form-row input, .form-row textarea{background:#0c0d0f;border:1px solid var(--line);color:var(--text);padding:9px 10px;border-radius:2px;font-size:13px;}
+  .form-row input:focus, .form-row textarea:focus{outline:none;border-color:var(--accent-dim);}
+  .btn{font-family:var(--font-mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:9px 16px;border-radius:2px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);align-self:flex-start;}
+  .btn:hover{border-color:var(--chrome-dim);}
+  .btn-accent{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;}
+  .btn-accent:hover{background:#c50818;}
+  .add-btn{width:100%;text-align:center;padding:12px;border:1px dashed var(--line);border-radius:2px;background:none;color:var(--text-dim);font-family:var(--font-mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px;}
+  .add-btn:hover{border-color:var(--chrome-dim);color:var(--text);}
+
+  /* ---------- detail view ---------- */
+  .back-link{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:11px;letter-spacing:0.1em;color:var(--text-dim);text-transform:uppercase;margin:22px 0 18px;background:none;border:none;padding:0;}
+  .back-link:hover{color:var(--text);}
+  .detail-header{border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:6px;}
+  .detail-date{font-family:var(--font-mono);font-size:13px;color:var(--accent);letter-spacing:0.1em;margin-bottom:8px;}
+  .detail-title{font-family:var(--font-display);font-weight:700;font-size:clamp(26px,5vw,38px);text-transform:uppercase;line-height:1.05;margin:0 0 8px;}
+  .detail-venue{font-size:13.5px;color:var(--text-dim);}
+  .detail-ticket-btn{display:inline-block;margin-top:14px;font-family:var(--font-mono);font-size:12px;letter-spacing:0.08em;color:#fff;background:var(--accent);padding:11px 20px;border-radius:2px;text-decoration:none;}
+  .detail-ticket-btn:hover{background:var(--accent-dim);}
+
+  .stats-list{display:flex;flex-direction:column;}
+  .stats-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);}
+  .stats-row:last-child{border-bottom:none;}
+  .stats-rank{font-family:var(--font-mono);font-size:12px;color:var(--chrome-dim);min-width:22px;}
+  .stats-name{font-family:var(--font-display);font-size:14px;letter-spacing:0.01em;flex:1;}
+  .stats-count{font-family:var(--font-mono);font-size:12px;color:var(--text-dim);min-width:38px;text-align:right;}
+
+  .song-picker{max-height:260px;overflow-y:auto;border:1px solid var(--line);border-radius:2px;background:#0c0d0f;margin-top:8px;}
+  .song-picker-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--line);cursor:pointer;font-size:13px;}
+  .song-picker-row:last-child{border-bottom:none;}
+  .song-picker-row:hover{background:var(--surface-2);}
+  .song-picker-row input[type="radio"]{accent-color:var(--accent);}
+  .song-picker-row.special span{color:var(--chrome-dim);font-family:var(--font-mono);font-size:11.5px;letter-spacing:0.04em;}
+
+  .setlist{list-style:none;margin:0;padding:0;counter-reset:track;}
+  .setlist li{display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--line);}
+  .setlist li:last-child{border-bottom:none;}
+  .mc-row .track-title{color:var(--text-dim);font-style:italic;letter-spacing:0.05em;}
+  .track-no{font-family:var(--font-mono);font-size:12px;color:var(--chrome-dim);min-width:26px;background:#0c0d0f;border:1px solid var(--line);border-radius:2px;text-align:center;padding:3px 0;}
+  .track-title{font-family:var(--font-display);font-size:15.5px;letter-spacing:0.01em;flex:1;}
+  .track-del{background:none;border:none;color:var(--text-dim);font-size:14px;}
+  .track-del:hover{color:var(--accent);}
+
+  .photo-embed-list{display:flex;flex-direction:column;gap:14px;}
+  .photo-embed-item{position:relative;}
+  .photo-del{display:block;margin-top:6px;background:none;border:1px solid var(--line);color:var(--text-dim);font-family:var(--font-mono);font-size:10.5px;letter-spacing:0.08em;text-transform:uppercase;padding:6px 12px;border-radius:2px;}
+  .photo-del:hover{color:var(--accent);border-color:var(--accent-dim);}
+
+  .video-embed{border:1px solid var(--line);border-radius:2px;padding:14px;background:var(--surface);}
+  .video-fallback{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:12px;letter-spacing:0.05em;color:var(--text);text-decoration:none;border:1px solid var(--line);padding:9px 14px;border-radius:2px;background:var(--surface-2);margin-top:10px;}
+  .video-fallback:hover{border-color:var(--chrome-dim);}
+  .no-video{color:var(--text-dim);font-size:13px;padding:6px 0;}
+
+  .hint{font-size:11px;color:var(--chrome-dim);font-family:var(--font-mono);margin-top:6px;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+
+  ::selection{background:var(--accent-dim);color:#fff;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="application/json" id="baked-data">{}</script>
+
+<script>
+(function(){
+  var PRISTINE_HTML = document.documentElement.outerHTML;
+  var state = {
+    view: {type:'top'},
+    editMode: false,
+    lives: [],
+    songs: [],
+    expandedYears: {},
+    ieOpen: null,
+    songMasterOpen: false,
+    basicInfoEditOpen: null,
+    songDataExpanded: false
+  };
+
+  var todayStr = new Date().toISOString().slice(0,10);
+
+  var __uidCounter = 0;
+  function uid(){ __uidCounter++; return 'l' + Date.now() + '_' + __uidCounter + '_' + Math.floor(Math.random()*100000); }
+
+  function dedupeLiveIds(){
+    var seen = {};
+    var fixedAny = false;
+    (state.lives || []).forEach(function(live){
+      if (!live.id || seen[live.id]){
+        live.id = uid();
+        fixedAny = true;
+      }
+      seen[live.id] = true;
+    });
+    return fixedAny;
+  }
+
+  // --- ルーティング・History API 連携 ---
+  function parseHash(){
+    var hash = window.location.hash || '';
+    if (!hash || hash === '#') return {type: 'top'};
+    var matchLive = hash.match(/^#live\/(.+)$/);
+    if (matchLive) return {type: 'detail', id: decodeURIComponent(matchLive[1])};
+    var matchSong = hash.match(/^#song\/(.+)$/);
+    if (matchSong) return {type: 'song', name: decodeURIComponent(matchSong[1])};
+    return {type: 'top'};
+  }
+
+  function navigate(view, replace){
+    var targetHash = '#';
+    if (view.type === 'detail') targetHash = '#live/' + encodeURIComponent(view.id);
+    else if (view.type === 'song') targetHash = '#song/' + encodeURIComponent(view.name);
+
+    if (window.location.hash !== targetHash){
+      if (replace){
+        history.replaceState(null, '', targetHash);
+      } else {
+        history.pushState(null, '', targetHash);
+      }
+    }
+    state.view = view;
+    render();
+    window.scrollTo(0,0);
+  }
+
+  window.addEventListener('popstate', function(){
+    state.view = parseHash();
+    render();
+  });
+
+  function seedData(){
+    return [
+      {
+        id: uid(),
+        date: '2026-07-24',
+        venue: 'DAIKANYAMA UNIT',
+        city: '東京',
+        title: 'tbm presents. "weapons" release party "PRINTED HEAVEN"（東京公演）',
+        setlist: ['sad song','knife','the anomaly','pile bunker','MC','あーもう','開口部','SMAP','ice pick','knuckle duster','MC','little black dress','morning star','背中','impact tracker','MC','rifle','pistol','thunder love','MC','our name is last love zombies','幸福な子供たち'],
+        photos: ['https://x.com/music_vap/status/2080640129925021765'],
+        videoUrl: '',
+        videos: ['https://x.com/WishYouWereCure/status/2081194221801980238','https://x.com/k1ll_yr_cherry/status/2080923780399214861','https://x.com/p_call_/status/2080949988151194101','https://x.com/soda_swi/status/2080675324707410386','https://x.com/mmtsoO/status/2080651280952021455','https://x.com/soda_swi/status/2080674380515078342','https://x.com/time_i_slives/status/2080803086596259864','https://x.com/jun_tobitobi/status/2080651599098401104'],
+        setlistTweetUrl: 'https://x.com/k1ll_yr_cherry/status/2080641673835741393',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2059590441679667283',
+        ticketUrl: 'https://eplus.jp/thebercedesmenz/'
+      },
+      {
+        id: uid(),
+        date: '2026-08-02',
+        venue: '下北沢BASEMENT BAR',
+        city: '',
+        title: 'GETTiNG BETTER -30th Anniversary Party- "Ground Thirty-One"',
+        setlist: [],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2060962229068149161',
+        ticketUrl: 'https://livepocket.jp/e/eknnc'
+      },
+      {
+        id: uid(),
+        date: '2026-08-10',
+        venue: '横浜F.A.D',
+        city: '横浜',
+        title: 'アフターソウル 1stALBUM「軽音楽」リリースツアー（横浜公演）',
+        setlist: [],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2046544481386701098',
+        ticketUrl: 'https://eplus.jp/aftersoul/'
+      },
+      {
+        id: uid(),
+        date: '2026-08-11',
+        venue: 'TOKIO TOKYO',
+        city: '',
+        title: 'TOKIO TOKYO pre. "BONE WEEK WONDER\'26"',
+        setlist: [],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2054033102759247987',
+        ticketUrl: 'https://livepocket.jp/e/20260811'
+      },
+      {
+        id: uid(),
+        date: '2026-08-28',
+        venue: '福島LIVE SQUARE 2nd LINE',
+        city: '大阪',
+        title: 'Viewtrade pre. 「ピクセル・インパクト・ツアー」（大阪公演）',
+        setlist: [],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2032430361184223542',
+        ticketUrl: 'https://eplus.jp/viewtrade/'
+      },
+      {
+        id: uid(),
+        date: '2026-09-05',
+        venue: '下北沢近道',
+        city: '東京',
+        title: 'Reinore 1st Full Album Release Tour "VIRUS" TOKYO',
+        setlist: [],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2058533478287675647',
+        ticketUrl: 'https://livepocket.jp/t/reinore_virus'
+      },
+      {
+        id: uid(),
+        date: '2026-10-11',
+        venue: '大阪服部緑地野外音楽堂',
+        city: '',
+        title: 'the band apart SMOOTH LIKE GREENSPIA 2026 -10th Special-【DAY2-OMNIBUS】',
+        setlist: [],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2063214323145552150',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-11-28',
+        venue: '大阪心斎橋複数会場',
+        city: '大阪',
+        title: 'PK shampoo presents "PSYCHIC FES 2026"',
+        setlist: [],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2075558154566254729',
+        ticketUrl: 'https://w.pia.jp/t/psychicfes-2026/'
+      },
+      {
+        id: uid(),
+        date: '2027-01-27',
+        venue: 'LIQUIDROOM',
+        city: '',
+        title: 'the bercedes menz ONE MAN LIVE「流れよわが涙、とザ・ベルセデス・メンツは言った」',
+        setlist: [],
+        photos: [],
+        videoUrl: '',
+        videos: [],
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2080639142187438375',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-09-18',
+        venue: '新宿LOFT/BAR',
+        city: '新宿',
+        title: '自爆 presents. "この世界を知るためのいくつかの手立て"',
+        setlist: [],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2076592470532460666',
+        ticketUrl: 'https://eplus.jp/sf/word/0000165149'
+      },
+      {
+        id: uid(),
+        date: '2026-09-25',
+        venue: '吉祥寺Star Pine\'s Cafe',
+        city: '吉祥寺',
+        title: '武蔵野音楽祭 20th ANNIVERSARY',
+        setlist: [],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2075789692222734784',
+        ticketUrl: 'https://tiget.net/events/505331'
+      },
+      {
+        id: uid(),
+        date: '2026-10-09',
+        venue: '下北沢ERA',
+        city: '下北沢',
+        title: 'HIRAETH × VINTAGE ROCK pre. "afterglow"',
+        setlist: [],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2078054160575135974',
+        ticketUrl: 'https://t.pia.jp/pia/event/event.do?eventCd=2628520'
+      },
+      {
+        id: uid(),
+        date: '2026-01-10',
+        venue: 'Zepp札幌',
+        city: '札幌',
+        title: '新春GIG',
+        setlist: ['the anomaly','SMAP','new step','little black dress','幸福な子供たち','開口部'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2008425567226646772',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-01-24',
+        venue: '新宿3会場',
+        city: '',
+        title: '内山結愛 pre. 「tie in reaction DX」',
+        setlist: ['knuckle duster','the anomaly','行為する惑星','the fire','vernier/thruster','little black dress','meltdowner','thunder love'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: 'https://x.com/north_superfire/status/2014995137169150421',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2005247706160398378',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-02-05',
+        venue: 'Shibuya WWW',
+        city: '',
+        title: 'WWW presents the bercedes menz ONE MAN LIVE「ザ・ベルセデス・メンツにうってつけの日」',
+        setlist: ['天蓋','the anomaly','あーもう','knife','幸福な子供たち','sad song','vernier/thruster','tiltawhirl','開口部','バラッド','Mercedes Benz','行為する惑星','knuckle duster','in/out','new step','SMAP','only god discotheque','little black dress','背中','dance dance your first love is dead','meltdowner','thunder love','MC','our name is last love zombies','rifle'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: 'https://x.com/thebercedesmenz/status/2019423096151986272',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1995796294565232854',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-02-21',
+        venue: '名古屋RAD NINE',
+        city: '',
+        title: 'wata presents.「TRUST YOUR SOULS -RAD NINE OPENING SPECIAL-」',
+        setlist: ['the anomaly','only god discotheque','開口部','knuckle duster','little black dress','vernier thruster','dance dance your first love is dead','thunder love','rifle'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1999416020738670686',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-03-01',
+        venue: 'TOKIO TOKYO',
+        city: '',
+        title: '溶 -you-（振替公演）',
+        setlist: ['the anomaly','only god discotheque','開口部','knuckle duster','little black dress','MC','vernier thruster','dance dance your first love is dead','thunder love','rifle','en.our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: 'https://x.com/tansansui_v2/status/2025225307759018376',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1966411468066435526',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-03-22',
+        venue: '新宿red cloth',
+        city: '',
+        title: 'RED CLOTH 2MAN SHOW',
+        setlist: ['sad song','vernier/thruster','SMAP','only god discotheque','あーもう','little black dress','バラッド','knuckle duster','背中','rifle','開口部','the anomaly','thunder love'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: 'https://x.com/kani_samba/status/2035716933900026018',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2012097989578526848',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-04-05',
+        venue: '下北沢Flowers Loft',
+        city: '',
+        title: 'FlowersLoft 6th Anniversary FLOOR-FILLER vol.5',
+        setlist: ['the anomaly','天蓋','knife','only god discotheque','vernier thruster','開口部','バラッド','knuckle duster','rifle','背中','nail hammer','thunder love'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2029512248792678620',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-04-08',
+        venue: '高円寺HIGH',
+        city: '',
+        title: 'Beat Happening！学校じゃ教えてくれない最強2マンMUSIC!!',
+        setlist: ['天蓋','あーもう','SMAP','only god discotheque','MC','rifle','knuckle duster','行為する惑星','tiltawhirl','幸福な子供たち','little black dress','nail hammer','thunder love','dance dance your first love is dead'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: 'https://x.com/k1ll_yr_cherry/status/2041902648014840111',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2008878786654138741',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-04-11',
+        venue: '渋谷エリア複数会場',
+        city: '',
+        title: "SYNCHRONICITY'26",
+        setlist: ['the anomaly','開口部','SMAP','little black dress','幸福な子供たち','rifle','thunder love'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2026598046495101139',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-04-18',
+        venue: '青山月見ル君想フ',
+        city: '',
+        title: 'Do Not Disturb! vol.9（延期振替公演）',
+        setlist: ['天蓋','ice pick','knuckle duster','vernier/thruster','SMAP','only god discotheque','開口部','the anomaly','the fire','our name is last love zombies','in/out','little black dress','rifle','dance dance your first love is dead'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: 'https://x.com/k1ll_yr_cherry/status/2045503765818831249',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2008841042091495911',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-04-24',
+        venue: 'LIVE HOUSE BRONZE',
+        city: '大阪',
+        title: 'Tyrkouaz presents「MULTI PLAY3（OSAKA）」',
+        setlist: ['sad song','vernier thruster','SMAP','nail hammer','only god discotheque','MC','little black dress','ice pick','knuckle duster','the anomaly','MC','幸福な子供たち','開口部','MC','rifle','thunder love'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: 'https://x.com/k1ll_yr_cherry/status/2047984643950162297',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2009464824737243504',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-05-02',
+        venue: '新宿MARZ / LOFT / Marble',
+        city: '',
+        title: 'ピューパフェス!!2026',
+        setlist: ['東京標本','only god discotheque','knife','幸福な子供たち','tiltawhirl','vernier/thruster','バラッド','little black dress'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2041863633517306313',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-05-05',
+        venue: 'TOKIO TOKYO',
+        city: '',
+        title: 'Grape Kiki pre.「葡萄会」',
+        setlist: ['開口部','天蓋','幸福な子供たち','tiltawhirl','vernier/thruster','バラッド','東京標本','nail hammer','the anomaly','SMAP','MC','little black dress','rifle','our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: 'https://x.com/k1ll_yr_cherry/status/2051658758187868316',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2003394420071367088',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-05-06',
+        venue: '',
+        city: '',
+        title: 'VIVA LA ROCK 2026',
+        setlist: ['the anomaly','our name is last love zombies','SMAP','開口部','little black dress','knuckle duster','thunder love','sad song'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2027217126852005898',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-05-11',
+        venue: '越谷EASYGOINGS',
+        city: '越谷',
+        title: '越谷EASYGOINGS pre. "鳴鳴"',
+        setlist: ['the anomaly','the fire','in/out','Mercedes Benz','knife','開口部','バラッド','あーもう','MC','knuckle duster','only god discotheque','nail hammer','rifle','MC','背中','天蓋','en.thunder love'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: 'https://x.com/k1ll_yr_cherry/status/2053853386559414524',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2029497151059816640',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-05-16',
+        venue: '吉祥寺エリア複数会場',
+        city: '',
+        title: '武蔵野音楽祭蓮の音カーニバル2026',
+        setlist: ['東京標本','開口部','vernier/thruster','あーもう','knuckle duster','SMAP','ちひろ','thunder love','en.dance dance your first love is dead'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2024680406159937744',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-05-22',
+        venue: 'MORIMICHI ART THEATER',
+        city: '',
+        title: '森、道、市場2026',
+        setlist: ['little black dress','SMAP','行為する惑星','開口部','バラッド','the anomaly','our name is last love zombies','knuckle duster','sad song','dance dance your first love is dead'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2036276820295709158',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-06-06',
+        venue: 'タワーレコード渋谷店 B1F CUTUP STUDIO',
+        city: '渋谷',
+        title: 'mini live & 特別面会',
+        setlist: ['knife','pile bunker','SMAP','ice pick','little black dress','only god discotheque','開口部','morning star','pistol','thunder love'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: 'https://x.com/k1ll_yr_cherry/status/2063264713061048707',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2062822036112896286',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-06-13',
+        venue: '大阪心斎橋複数会場',
+        city: '',
+        title: 'Pangea EXPO 2026',
+        setlist: ['the anomaly','pile bunker','MC','little black dress','MC','SMAP','nail hammer','rifle','morning star','MC','pistol'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: 'https://x.com/k1ll_yr_cherry/status/2065701314231943634',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2058140885640962053',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-06-20',
+        venue: 'club asia',
+        city: '渋谷',
+        title: 'YATSUI FESTIVAL! 2026',
+        setlist: ['sad song','pile bunker','東京標本','MC','匣','Mercedes Benz','SMAP','nail hammer','あーもう','rifle','MC','only god discotheque'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: 'https://x.com/k1ll_yr_cherry/status/2068247750970642780',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2057312568650379540',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-06-21',
+        venue: 'BIG CAT',
+        city: '大阪',
+        title: 'ツタロックDIG LIVE Vol.20',
+        setlist: ['the anomaly','pile bunker','行為する惑星','MC','in/out','little black dress','SMAP','only god discotheque','あーもう','幸福な子供たち','thunder love'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: 'https://x.com/k1ll_yr_cherry/status/2068586606580433301',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2062821740196311107',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-07-04',
+        venue: '高松DIME',
+        city: '香川',
+        title: 'PK shampoo tour 2026 -Planet Parade-（香川公演）',
+        setlist: ['幸福な子供たち','vernier/thruster','SMAP','MC','pile bunker','the anomaly','東京標本','MC','ice pick','MC','ちひろ','開口部','rifle','あーもう'],
+        photos: ['https://x.com/PKshampoo/status/2073379013406666963'],
+        videoUrl: '',
+        videos: ['https://x.com/mlp21g/status/2073790006884540616','https://x.com/k1ll_yr_cherry/status/2073440840413036797'],
+        setlistTweetUrl: 'https://x.com/k1ll_yr_cherry/status/2073345899028455836',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2047291902366748864',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-07-05',
+        venue: '心斎橋ANIMA',
+        city: '大阪',
+        title: 'tbm presents. "weapons" release party "PRINTED HEAVEN"（大阪公演）',
+        setlist: ['天蓋','東京標本','匣','the anomaly','MC','ice pick','pile bunker','knuckle duster','MC','little black dress','only god discotheque','あーもう','MC','nail hammer','rifle','morning star','pistol','thunder love'],
+        photos: [],
+        videoUrl: '',
+        videos: ['https://x.com/Ptolemaeusee/status/2073811591041298489','https://x.com/k1ll_yr_cherry/status/2073796678029906289','https://x.com/k1ll_yr_cherry/status/2073775557570170999'],
+        setlistTweetUrl: 'https://x.com/k1ll_yr_cherry/status/2073741283944984805',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2059590443612897455',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2026-07-09',
+        venue: 'shibuya WWW',
+        city: '渋谷',
+        title: 'スペースシャワー列伝 第168巻 –揺炎の宴-',
+        setlist: ['pile bunker','バラッド','ice pick','drum intro〜開口部','only god discotheque','morning star','MC','幸福な子供たち','our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: 'https://x.com/k1ll_yr_cherry/status/2075179596656603597',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/2044715575814033534',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2022-12-17',
+        venue: '下北沢近松/mona records',
+        city: '',
+        title: 'fever',
+        setlist: ['開口部','匣','天蓋','あーもう','幸福な子供たち','our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '[https://x.com/thebercedesmenz/status/1603854119462395904?s=20](https://x.com/thebercedesmenz/status/1603854119462395904?s=20)',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1596868604292521984',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2023-02-19',
+        venue: '吉祥寺WARP',
+        city: '',
+        title: 'Large Serving',
+        setlist: ['開口部','匣','天蓋','quiet machine','bulldose','幸福な子供たち','our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1616032520772145153',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2023-02-19',
+        venue: '西荻窪FLAT',
+        city: '',
+        title: '毎日何にもすることなくて啓蒙している',
+        setlist: ['開口部','匣','天蓋','quiet machine','bulldose','幸福な子供たち','our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1610622250113454081',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2023-04-23',
+        venue: '下北沢近道',
+        city: '',
+        title: 'Now2',
+        setlist: ['quiet machine','匣','天蓋','bulldose','幸福な子供たち','開口部','our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: '',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2023-07-02',
+        venue: '下北沢近道',
+        city: '',
+        title: 'Now2',
+        setlist: ['天蓋','匣','開口部','quiet machine','幸福な子供たち','庭','our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: '',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2023-07-16',
+        venue: '幡ヶ谷FORESTLIMIT',
+        city: '',
+        title: 'Collection 001 "nostalgia fag"',
+        setlist: ['幸福な子供たち','匣','天蓋','開口部'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1668950118538809347',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2023-08-20',
+        venue: '経堂TAD POLE STUDIO',
+        city: '',
+        title: 'OTKRIOT 2023',
+        setlist: ['in/out','our name is last love zombies','quiet machine','天蓋','匣','庭'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1686331109959974912',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2023-09-10',
+        venue: '横須賀かぼちゃ屋',
+        city: '',
+        title: 'kurayami saka tte doko? #3',
+        setlist: ['開口部','quiet machine','庭','天蓋','幸福な子供たち','匣','in/out','our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1680888725851754496',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2024-01-20',
+        venue: '新宿LOFT bar',
+        city: '',
+        title: 'Dancing on the Checkered',
+        setlist: ['幸福な子供たち','開口部','天蓋','庭','in/out','little black dress','quiet machine','our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1740658922523111718',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2024-02-18',
+        venue: '新宿Motion',
+        city: '',
+        title: 'bercedes boys&girls telepathy club',
+        setlist: ['幸福な子供たち','開口部','天蓋','庭','little black dress','quiet machine','ちひろ','dance dance your first love is dead','MC','our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: '',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2024-02-24',
+        venue: '幡ヶ谷FORESTLIMIT',
+        city: '',
+        title: 'ELECTRIC LIBIDO Vol.2',
+        setlist: ['our name is last love zombies','天蓋','little black dress','開口部','幸福な子供たち','ちひろ','匣','in/out'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1746112510078648768',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2024-04-07',
+        venue: '吉祥寺WARP',
+        city: '',
+        title: 'marble green',
+        setlist: ['開口部','our name is last love zombies','回想','mirror mirror','dance dance your first love is dead','天蓋','あーもう','little black dress'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1776218651789787274',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2024-04-13',
+        venue: '下北沢近道',
+        city: '',
+        title: 'Now2',
+        setlist: ['幸福な子供たち','匣','bulldose','庭','little black dress','mirror mirror','quiet machine','ちひろ','in/out'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '[https://x.com/SWEET17M0NSTERS/status/1779150761529897241?s=20](https://x.com/SWEET17M0NSTERS/status/1779150761529897241?s=20)',
+        flyerUrl: '',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2024-04-28',
+        venue: '西荻窪FLAT',
+        city: '',
+        title: 'グシャット・フィスト',
+        setlist: ['開口部','匣','天蓋','あーもう','回想','幸福な子供たち','our name is last love zombies','行為する惑星','MC','in/out'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1761385119452160027',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2024-06-01',
+        venue: '下北沢BASEMENTBAR',
+        city: '',
+        title: 'dazzle',
+        setlist: ['開口部','quiet machine','行為する惑星','天蓋','幸福な子供たち','ちひろ','dance dance your first love is dead','MC','our name is last love zombies'],
+        photos: [],
+        videoUrl: '[https://x.com/bgpoll314/status/1797079060314739186?s=20](https://x.com/bgpoll314/status/1797079060314739186?s=20)',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1770392230131638735',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2024-06-02',
+        venue: '新宿MARZ',
+        city: '',
+        title: 'THE SADDEST CORE vol.1',
+        setlist: ['天蓋','匣','行為する惑星','in/out','開口部','回想','幸福な子供たち','little black dress','quiet machine','ちひろ','dance dance your first love is dead','SMAP','our name is last love zombies'],
+        photos: [],
+        videoUrl: '[https://x.com/hikarumcz/status/1855465097986203765?s=20](https://x.com/hikarumcz/status/1855465097986203765?s=20)\n',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1781261457231159743',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2024-06-16',
+        venue: '吉祥寺CLUBSEATA',
+        city: '',
+        title: 'Dialogue Vol.1',
+        setlist: ['mirror mirror','quiet machine','little black dress','開口部','天蓋','あーもう','行為する惑星','幸福な子供たち','回想','dance dance your first love is dead','バラッド'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1785232624811753779',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2024-07-15',
+        venue: '新宿NINE SPICE',
+        city: '',
+        title: 'in context',
+        setlist: ['幸福な子供たち','匣','天蓋','開口部','SMAP','little black dress','行為する惑星','回想','dance dance your first love is dead','sad song'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1802657443694158333',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2024-08-04',
+        venue: '心斎橋火影',
+        city: '大阪',
+        title: 'PSYCHIC FES',
+        setlist: ['in/out','天蓋','開口部','SMAP','あーもう','little black dress','幸福な子供たち','our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1774768675008201000',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2024-09-16',
+        venue: '新宿marble',
+        city: '',
+        title: 'FORELSKET',
+        setlist: ['開口部','天蓋','幸福な子供たち','東京標本','SMAP','バラッド','little black dress','sad song','dance dance your first love is dead','あーもう'],
+        photos: [],
+        videoUrl: '[https://x.com/u_nll_/status/1837266691950268919?s=20](https://x.com/u_nll_/status/1837266691950268919?s=20)\n',
+        setlistTweetUrl: '',
+        flyerUrl: '',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2024-09-29',
+        venue: '渋谷TOKIO TOKYO',
+        city: '',
+        title: 'LOOSE PLAY FESTIVAL',
+        setlist: ['天蓋','開口部','バラッド','行為する惑星','あーもう','幸福な子供たち','sad song','庭'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1803005144700957162',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2024-10-12',
+        venue: '大塚Hearts +',
+        city: '',
+        title: 'tie in reaction vol.3',
+        setlist: ['幸福な子供たち','天蓋','あーもう','バラッド','SMAP','開口部','庭','sad song','dance dance your first love is dead','little black dress'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: '',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2024-11-03',
+        venue: '大塚Hearts＋',
+        city: '',
+        title: '秋のYOIMACHI',
+        setlist: ['バラッド','東京標本','開口部','天蓋','幸福な子供たち','little black dress','tiltawhirl','our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1841042664772551172',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2024-11-10',
+        venue: '新宿LOFTbar',
+        city: '',
+        title: 'KABUKICHO MUSIC CHRONICLE',
+        setlist: ['バラッド','行為する惑星','the fire','開口部','天蓋','幸福な子供たち','tiltawhirl','in/out'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1823298435338092785',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2024-11-23',
+        venue: '下北沢近道',
+        city: '',
+        title: '四季 -momiji-',
+        setlist: ['開口部','東京標本','バラッド','the fire','天蓋','SMAP','幸福な子供たち','our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1832395514551398793',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2024-12-07',
+        venue: '下北沢SPREAD',
+        city: '',
+        title: '下北沢にて2024',
+        setlist: ['in/out','the fire','バラッド','行為する惑星','our name is last love zombies','little black dress','幸福な子供たち','あーもう'],
+        photos: [],
+        videoUrl: '[https://x.com/coto__31_8/status/1855605630821917142?s=20](https://x.com/coto__31_8/status/1855605630821917142?s=20)',
+        setlistTweetUrl: '',
+        flyerUrl: '',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2024-12-29',
+        venue: '月見ル君思フ',
+        city: '',
+        title: '感電 vol.4',
+        setlist: ['only god discotheque','天蓋','バラッド','あーもう','開口部','quiet machine','bulldose','our name is last love zombies','幸福な子供たち','dance dance your first love is dead','SMAP','little black dress'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '[https://x.com/coto__31_8/status/1873382879650271658?s=20](https://x.com/coto__31_8/status/1873382879650271658?s=20)',
+        flyerUrl: '',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-01-10',
+        venue: '渋谷RUBY ROOM',
+        city: '',
+        title: '百獣の日',
+        setlist: ['開口部','in/out','the fire','天蓋','SMAP','tiltawhirl','quiet machine','our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1875482342573441216',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-01-12',
+        venue: '下北沢近道',
+        city: '',
+        title: 'Now2',
+        setlist: ['幸福な子供たち','our name is last love zombies','あーもう','天蓋','SMAP','バラッド','only god discotheque','東京標本','the fire','sad song','dance dance your first love is dead'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: '',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-01-19',
+        venue: '吉祥寺WARP',
+        city: '',
+        title: '"42"answer to life the universe and everything',
+        setlist: ['only god discotheque','SMAP','our name is last love zombies','幸福な子供たち','tiltawhirl','東京標本','背中','little black dress','dance dance your first love is dead','開口部','meltdowner'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1862451443229474969',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-02-09',
+        venue: '心斎橋ANIMA',
+        city: '大阪',
+        title: 'ANIMISM#20250209',
+        setlist: ['sad song','in/out','東京標本','開口部','the fire','バラッド','SMAP','only god discotheque','幸福な子供たち','背中','回想','meltdowner'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1870076683933626699',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-02-11',
+        venue: '秋葉CLUB GOODMAN',
+        city: '',
+        title: 'TOKYO SWING',
+        setlist: ['天蓋','quiet machine','顔','the fire','バラッド','東京標本','開口部','背中','sad song','dance dance your first love is dead','幸福な子供たち'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1870091789186589114',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-02-16',
+        venue: '下北沢近道',
+        city: '',
+        title: 'TEEN AGE RIOT TOUR 2025',
+        setlist: ['only god discotheque','東京標本','開口部','SMAP','バラッド','幸福な子供たち','sad song','tiltawhirl','庭','little black dress','あーもう'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1874410244236787853',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-02-24',
+        venue: '新宿MARZ',
+        city: '',
+        title: 'ピューパフェス',
+        setlist: ['開口部','only god discotheque','東京標本','SMAP','バラッド','幸福な子供たち','meltdowner','little black dress'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1879501284245701055',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-03-09',
+        venue: '西永福JAM',
+        city: '',
+        title: '風',
+        setlist: ['only god discotheque','SMAP','バラッド','開口部','mirror mirror','sad song','tiltawhirl','little black dress','あーもう'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1879136389754765660',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-03-24',
+        venue: '渋谷WWW',
+        city: '',
+        title: 'NEWWW',
+        setlist: ['バラッド','only god discotheque','SMAP','開口部','あーもう','mirror mirror','幸福な子供たち','meltdowner'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1881295616938275041',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-03-29',
+        venue: '渋谷TOKIO TOKYO',
+        city: '',
+        title: 'TOKIO TOKYO4周年記念「ONE WEEK WONDER\'25」',
+        setlist: ['only god discotheque','SMAP','東京標本','バラッド','開口部','sad song','幸福な子供たち','ちひろ','dance dance your first love is dead','little black dress','our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1864942862355567079',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-04-05',
+        venue: '寺田町fireloop',
+        city: '',
+        title: 'PURE',
+        setlist: ['天蓋','バラッド','東京標本','開口部','あーもう','SMAP','行為する惑星','only god discotheque','quiet machine','mirror mirror','ちひろ','回想','little black dress','背中','sad song','meltdowner','our name is last love zombies','幸福な子供たち','dance dance your first love is dead'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1855568545301557418',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-04-13',
+        venue: '渋谷club asia',
+        city: '',
+        title: 'SYNCHRONICITY',
+        setlist: ['in/out','SMAP','only god discotheque','開口部','バラッド','天蓋','あーもう','little black dress','sad song','幸福な子供たち','meltdowner','our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1899040900694904973',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-04-20',
+        venue: '笹塚ボウル',
+        city: '',
+        title: '「Vol.」Vol. 4',
+        setlist: ['バラッド','開口部','little black dress','あーもう','SMAP','only god discotheque','背中','幸福な子供たち','tiltawhirl','dance dance your first love is dead','our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1897950565084414215',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-04-29',
+        venue: '渋谷TOKIO TOKYO',
+        city: '',
+        title: '溶-YOU-',
+        setlist: ['バラッド','東京標本','天蓋','あーもう','SMAP','only god discotheque','背中','sad song','幸福な子供たち','little black dress','our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1891397179786600668',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-04-30',
+        venue: '下北沢shelter',
+        city: '',
+        title: '世田谷、ポップ、春の風',
+        setlist: ['sad song','バラッド','あーもう','背中','little black dress','回想','SMAP','dance dance your first love is dead'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1884934589577318455',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-05-06',
+        venue: '新宿MARZ',
+        city: '',
+        title: 'bercedes boys&girls telepathy club vol.2',
+        setlist: ['あーもう','天蓋','東京標本','only god discotheque','開口部','バラッド','Mercedes Benz','SMAP','幸福な子供たち','dance dance your first love is dead','meltdowner','our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1897240683758674085',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-05-24',
+        venue: '下北沢ERA',
+        city: '',
+        title: '下北沢sound cruising',
+        setlist: ['SMAP','あーもう','開口部','little black dress','only god discotheque','バラッド','背中','幸福な子供たち','our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1905243415513555430',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-06-21',
+        venue: '渋谷 O-Crest',
+        city: '',
+        title: 'やついフェスティバル！2025',
+        setlist: ['sad song','幸福な子供たち','バラッド','開口部','東京標本','SMAP','only god discotheque','背中','meltdowner'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1925507077658878105',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-06-28',
+        venue: '高円寺HIGH',
+        city: '',
+        title: 'Beat Happening！夏の日のGREATEST MAX！',
+        setlist: ['天蓋','あーもう','開口部','東京標本','SMAP','tiltawhirl','幸福な子供たち','Mercedes Benz','little black dress','our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1922667083566825680',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-06-29',
+        venue: '寺田町fireloop',
+        city: '',
+        title: 'Dilemma',
+        setlist: ['幸福な子供たち','あーもう','Mercedes Benz','バラッド','the fire','only god discotheque','little black dress','dance dance your first love is dead'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1931694003801714726',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-07-12',
+        venue: '吉祥寺Planet K',
+        city: '',
+        title: '青春映画の作り方-crank in-',
+        setlist: [],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1923729186939863317',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-07-13',
+        venue: '新宿marble',
+        city: '',
+        title: 'GACHI-POP',
+        setlist: ['行為する惑星','あーもう','SMAP','回想','バラッド','Mercedes Benz','sad song','幸福な子供たち','開口部','dance dance your first love is dead','only god discotheque','our name is last love zombies'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1921871409116012742',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-07-19',
+        venue: '西荻窪FLAT',
+        city: '',
+        title: '東京尸変',
+        setlist: ['SMAP','Mercedes Benz','only god discotheque','東京標本','天蓋','バラッド','sad song','tiltawhirl','幸福な子供たち','dance dance your first love is dead','MC','little black dress'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: '',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-08-02',
+        venue: 'クリエイティブセンター大阪',
+        city: '大阪',
+        title: '新世界FESTIVAL2025',
+        setlist: ['あーもう','SMAP','only god discotheque','開口部','Mercedes Benz','東京標本','幸福な子供たち'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1925874775714345135',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-08-05',
+        venue: '新宿MARZ',
+        city: '',
+        title: 'POP MATE',
+        setlist: ['sad song','東京標本','開口部','バラッド','Mercedes Benz','SMAP','回想','幸福な子供たち','little black dress'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: 'https://x.com/thebercedesmenz/status/1939310764424339616',
+        ticketUrl: ''
+      },
+      {
+        id: uid(),
+        date: '2025-08-17',
+        venue: '下北沢近松',
+        city: '',
+        title: 'Now2',
+        setlist: ['行為する惑星','SMAP','開口部','天蓋','あーもう','sad song','only god discotheque','東京標本','Mercedes Benz','幸福な子供たち','little black dress','dance dance your first love is dead'],
+        photos: [],
+        videoUrl: '',
+        setlistTweetUrl: '',
+        flyerUrl: '',
+        ticketUrl: ''
+      },
+    ];
+  }
+
+  function getBakedData(){
+    var el = document.getElementById('baked-data');
+    if (!el) return null;
+    try{
+      var parsed = JSON.parse(el.textContent || '{}');
+      if (parsed && Array.isArray(parsed.lives) && parsed.lives.length){
+        return parsed;
+      }
+    } catch(e){}
+    return null;
+  }
+
+  function loadData(cb){
+    var baked = getBakedData();
+    var done = false;
+    var safetyTimer = setTimeout(function(){
+      if (done) return;
+      done = true;
+      console.error('loadData timed out; falling back to seed/baked data');
+      state.lives = baked ? baked.lives : seedData();
+      state.songs = (baked && baked.songs && baked.songs.length) ? baked.songs : seedSongsFromLives();
+      cb();
+    }, 6000);
+    function finish(){
+      if (done) return;
+      done = true;
+      clearTimeout(safetyTimer);
+      var fixed = dedupeLiveIds();
+      if (fixed) saveData();
+      cb();
+    }
+    function useFallback(){
+      state.lives = baked ? baked.lives : seedData();
+      state.songs = (baked && baked.songs && baked.songs.length) ? baked.songs : seedSongsFromLives();
+    }
+    if (!window.storage){
+      useFallback();
+      finish();
+      return;
+    }
+    try{
+      window.storage.get('lives', false).then(function(res){
+        try{
+          if (res && res.value){
+            try{ state.lives = JSON.parse(res.value); } catch(e){ state.lives = baked ? baked.lives : seedData(); }
+          } else {
+            state.lives = baked ? baked.lives : seedData();
+            saveData();
+          }
+        } catch(e){ state.lives = baked ? baked.lives : seedData(); }
+        return window.storage.get('songs', false).then(function(sres){
+          try{
+            if (sres && sres.value){
+              try{ state.songs = JSON.parse(sres.value); } catch(e){ state.songs = (baked && baked.songs && baked.songs.length) ? baked.songs : seedSongsFromLives(); saveSongs(); }
+            } else {
+              state.songs = (baked && baked.songs && baked.songs.length) ? baked.songs : seedSongsFromLives();
+              saveSongs();
+            }
+          } catch(e){ state.songs = seedSongsFromLives(); }
+        }).catch(function(){
+          state.songs = seedSongsFromLives();
+        });
+      }).catch(function(){
+        useFallback();
+      }).then(finish, finish);
+    } catch(syncErr){
+      console.error('loadData sync error; falling back', syncErr);
+      useFallback();
+      finish();
+    }
+  }
+
+  function showSaveWarning(){
+    if (document.getElementById('save-warn-banner')) return;
+    var bar = document.createElement('div');
+    bar.id = 'save-warn-banner';
+    bar.className = 'save-warn-banner';
+    bar.textContent = '⚠ 保存に失敗しました。編集内容が消える前に「更新済みHTMLをダウンロード」で保存してください。';
+    document.body.appendChild(bar);
+  }
+
+  function saveData(retry){
+    if (!window.storage) return;
+    window.storage.set('lives', JSON.stringify(state.lives), false).then(function(res){
+      if (!res && !retry){ saveData(true); return; }
+      if (!res && retry){ showSaveWarning(); }
+    }).catch(function(err){
+      console.error('storage save failed', err);
+      if (!retry){ setTimeout(function(){ saveData(true); }, 800); }
+      else { showSaveWarning(); }
+    });
+  }
+
+  function saveSongs(retry){
+    if (!window.storage) return;
+    window.storage.set('songs', JSON.stringify(state.songs), false).then(function(res){
+      if (!res && !retry){ saveSongs(true); return; }
+      if (!res && retry){ showSaveWarning(); }
+    }).catch(function(err){
+      console.error('songs storage save failed', err);
+      if (!retry){ setTimeout(function(){ saveSongs(true); }, 800); }
+      else { showSaveWarning(); }
+    });
+  }
+
+  function seedSongsFromLives(){
+    var seen = {};
+    var out = [];
+    state.lives.forEach(function(live){
+      if (!live.setlist) return;
+      live.setlist.forEach(function(raw){
+        if (!isCountableSong(raw)) return;
+        var cleaned = stripEncoreMarker(raw);
+        var canonical = legacyNormalize(cleaned);
+        if (!canonical || seen[canonical]) return;
+        seen[canonical] = true;
+        out.push({ id: uid(), title: canonical, aliases: [canonical] });
+      });
+    });
+    return out;
+  }
+
+  function isSafeUrl(u){
+    return /^https?:\/\//i.test(u || '');
+  }
+
+  function fmtDateParts(dateStr){
+    var d = new Date(dateStr + 'T00:00:00');
+    if (isNaN(d)) return {day:'--', ym:'----'};
+    var day = String(d.getDate()).padStart(2,'0');
+    var y = d.getFullYear();
+    var m = String(d.getMonth()+1).padStart(2,'0');
+    return {day: day, ym: y + '.' + m};
+  }
+
+  function sortedLives(){
+    return state.lives.slice().sort(function(a,b){ return a.date < b.date ? -1 : 1; });
+  }
+
+  // ---------------- render root ----------------
+  function render(){
+    var app = document.getElementById('app');
+    try{
+      app.innerHTML = '';
+      app.appendChild(renderTopbar());
+      if (state.view.type === 'top'){
+        app.appendChild(renderTopView());
+      } else if (state.view.type === 'song'){
+        app.appendChild(renderSongDetailView(state.view.name));
+      } else {
+        app.appendChild(renderDetailView(state.view.id));
+      }
+    } catch(e){
+      console.error('render failed', e);
+      app.innerHTML = '<div style="padding:60px 20px;color:#f4f3ef;font-family:monospace;font-size:13px;line-height:1.7;max-width:600px;margin:0 auto;">'
+        + '⚠ 表示中にエラーが発生しました。<br><br>'
+        + '一度ページを再読み込みしてください。直らない場合は、この画面のスクリーンショットを添えてClaudeに伝えてください。<br><br>'
+        + '<span style="color:#9aa0a6;">' + (e && e.message ? e.message.replace(/</g,"&lt;") : '') + '</span>'
+        + '</div>';
+    }
+  }
+
+  function renderTopbar(){
+    var bar = document.createElement('div');
+    bar.className = 'topbar';
+    return bar;
+  }
+
+  // ---------------- top view ----------------
+  function renderTopView(){
+    var wrap = document.createElement('div');
+
+    var hero = document.createElement('div');
+    hero.className = 'hero';
+    var h1 = document.createElement('h1');
+    h1.className = 'hero-title';
+    h1.textContent = 'ベルホーム';
+    var sub = document.createElement('div');
+    sub.className = 'hero-sub';
+    sub.textContent = 'UNOFFICIAL LIVE LOG — SCHEDULE / SETLIST / ARCHIVE';
+    hero.appendChild(h1);
+    hero.appendChild(sub);
+
+    wrap.appendChild(hero);
+    wrap.appendChild(renderQuickNav());
+
+    var lives = sortedLives();
+    var upcoming = lives.filter(function(l){ return l.date >= todayStr; });
+    var past = lives.filter(function(l){ return l.date < todayStr; }).reverse();
+
+    wrap.appendChild(sectionLabel('SCHEDULE / 今後のライブ', 'sec-schedule'));
+    if (state.editMode){
+      wrap.appendChild(renderAddLiveButton());
+      wrap.appendChild(renderImportExportPanel());
+      wrap.appendChild(renderSongMasterPanel());
+    }
+    wrap.appendChild(renderCardList(upcoming, true));
+
+    wrap.appendChild(sectionLabel('ARCHIVE / 過去のライブ', 'sec-archive'));
+    wrap.appendChild(renderArchiveByYear(past));
+
+    wrap.appendChild(sectionLabel('SONG DATA / 演奏回数ランキング', 'sec-songdata'));
+    wrap.appendChild(renderSongStats());
+
+    return wrap;
+  }
+
+  function renderQuickNav(){
+    var nav = document.createElement('div');
+    nav.className = 'quick-nav';
+    var items = [
+      {label:'SCHEDULE', id:'sec-schedule'},
+      {label:'ARCHIVE', id:'sec-archive'},
+      {label:'SONG DATA', id:'sec-songdata'}
+    ];
+    items.forEach(function(it){
+      var a = document.createElement('button');
+      a.className = 'quick-nav-item';
+      a.textContent = it.label;
+      a.onclick = function(){
+        var target = document.getElementById(it.id);
+        if (target) target.scrollIntoView({behavior:'smooth', block:'start'});
+      };
+      nav.appendChild(a);
+    });
+    return nav;
+  }
+
+  // ---------------- song stats (internal DB) ----------------
+  var NON_SONG_LABELS = ['mc','MC'];
+
+  function legacyNormalize(title){
+    if (!title) return '';
+    var t = String(title).trim();
+    t = t.replace(/[\s]*[\(（][^\)）]*[\)）]\s*$/, '');
+    t = t.trim();
+    return t;
+  }
+
+  function resolveSongTitle(rawCleaned){
+    var t = String(rawCleaned || '').trim();
+    if (!t) return '';
+    for (var i=0; i<state.songs.length; i++){
+      var song = state.songs[i];
+      if (song.title === t) return song.title;
+      if (song.aliases && song.aliases.indexOf(t) !== -1) return song.title;
+    }
+    return legacyNormalize(t);
+  }
+
+  function findSongByTitle(title){
+    return state.songs.find(function(s){ return s.title === title; });
+  }
+
+  function ensureSongRegistered(rawTitle){
+    var t = String(rawTitle || '').trim();
+    if (!t) return;
+    var resolved = resolveSongTitle(t);
+    var existing = findSongByTitle(resolved);
+    if (existing){
+      if (existing.aliases.indexOf(t) === -1){
+        existing.aliases.push(t);
+        saveSongs();
+      }
+      return existing;
+    }
+    var song = { id: uid(), title: resolved, aliases: [t] };
+    state.songs.push(song);
+    saveSongs();
+    return song;
+  }
+
+  function isCountableSong(title){
+    if (!title) return false;
+    var t = String(title).trim();
+    if (t === '') return false;
+    if (NON_SONG_LABELS.indexOf(t) !== -1) return false;
+    return true;
+  }
+
+  function stripEncoreMarker(title){
+    return String(title).replace(/^(en\.|アンコール[:：]?|encore[:：]?)\s*/i, '');
+  }
+
+  function computeSongStats(){
+    var counts = {};
+    state.lives.forEach(function(live){
+      if (!live.setlist) return;
+      live.setlist.forEach(function(raw){
+        if (!isCountableSong(raw)) return;
+        var cleaned = stripEncoreMarker(raw);
+        var canonical = resolveSongTitle(cleaned);
+        if (!canonical) return;
+        counts[canonical] = (counts[canonical] || 0) + 1;
+      });
+    });
+    var arr = Object.keys(counts).map(function(name){ return {name: name, count: counts[name]}; });
+    arr.sort(function(a,b){
+      if (b.count !== a.count) return b.count - a.count;
+      return a.name < b.name ? -1 : 1;
+    });
+    return arr;
+  }
+
+  function renderSongStats(){
+    var stats = computeSongStats();
+    var wrap = document.createElement('div');
+    if (stats.length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.textContent = 'セットリストがまだ登録されていないので、演奏回数データはありません。';
+      wrap.appendChild(empty);
+      return wrap;
+    }
+    var list = document.createElement('div');
+    list.className = 'stats-list';
+    var TOP_N = 10;
+    var visibleStats = state.songDataExpanded ? stats : stats.slice(0, TOP_N);
+    visibleStats.forEach(function(item, idx){
+      var row = document.createElement('div');
+      row.className = 'stats-row';
+      row.style.cursor = 'pointer';
+      row.onclick = function(){
+        navigate({type:'song', name: item.name});
+      };
+      var rank = document.createElement('div');
+      rank.className = 'stats-rank';
+      rank.textContent = String(idx+1).padStart(2,'0');
+      var name = document.createElement('div');
+      name.className = 'stats-name';
+      name.textContent = item.name;
+      var count = document.createElement('div');
+      count.className = 'stats-count';
+      count.textContent = item.count + '回';
+      row.appendChild(rank);
+      row.appendChild(name);
+      row.appendChild(count);
+      list.appendChild(row);
+    });
+    wrap.appendChild(list);
+
+    if (stats.length > TOP_N){
+      var toggleBtn = document.createElement('button');
+      toggleBtn.className = 'btn';
+      toggleBtn.style.marginTop = '12px';
+      toggleBtn.textContent = state.songDataExpanded ? '上位10曲だけ表示' : 'もっと見る（残り' + (stats.length - TOP_N) + '曲）';
+      toggleBtn.onclick = function(){
+        state.songDataExpanded = !state.songDataExpanded;
+        render();
+      };
+      wrap.appendChild(toggleBtn);
+    }
+
+    var hint = document.createElement('div');
+    hint.className = 'hint';
+    hint.textContent = '※ 各ライブのSETLISTに登録された曲名から自動集計しています（表記ゆれは末尾の（）を除去して統合、MCは除外）';
+    wrap.appendChild(hint);
+    return wrap;
+  }
+
+  function findLivesForSong(songName){
+    return state.lives.filter(function(live){
+      if (!live.setlist) return false;
+      return live.setlist.some(function(raw){
+        if (!isCountableSong(raw)) return false;
+        var norm = resolveSongTitle(stripEncoreMarker(raw));
+        return norm === songName;
+      });
+    }).sort(function(a,b){ return a.date < b.date ? 1 : -1; });
+  }
+
+  function renderSongDetailView(songName){
+    var wrap = document.createElement('div');
+    var back = document.createElement('button');
+    back.className = 'back-link';
+    back.textContent = '← TOPに戻る';
+    back.onclick = function(){
+      navigate({type:'top'});
+    };
+    wrap.appendChild(back);
+
+    var header = document.createElement('div');
+    header.className = 'detail-header';
+    var dateEl = document.createElement('div');
+    dateEl.className = 'detail-date';
+    dateEl.textContent = 'SONG DATA';
+    var titleEl = document.createElement('h2');
+    titleEl.className = 'detail-title';
+    titleEl.textContent = songName;
+    var matches = findLivesForSong(songName);
+    var venueEl = document.createElement('div');
+    venueEl.className = 'detail-venue';
+    venueEl.textContent = '演奏回数：' + matches.length + '回';
+    header.appendChild(dateEl); header.appendChild(titleEl); header.appendChild(venueEl);
+    wrap.appendChild(header);
+
+    wrap.appendChild(sectionLabel('PLAYED AT'));
+    var list = document.createElement('div');
+    list.className = 'card-list';
+    if (matches.length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.textContent = 'この曲のライブ記録が見つかりませんでした。';
+      list.appendChild(empty);
+    } else {
+      matches.forEach(function(live){
+        list.appendChild(renderCard(live, live.date >= todayStr));
+      });
+    }
+    wrap.appendChild(list);
+    return wrap;
+  }
+
+  function sectionLabel(text, id){
+    var el = document.createElement('div');
+    el.className = 'section-label';
+    if (id) el.id = id;
+    var s = document.createElement('span');
+    s.textContent = text;
+    el.appendChild(s);
+    return el;
+  }
+
+  function renderArchiveByYear(past){
+    var wrap = document.createElement('div');
+    if (past.length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.textContent = '過去のライブ記録はまだありません。';
+      wrap.appendChild(empty);
+      return wrap;
+    }
+    var byYear = {};
+    past.forEach(function(live){
+      var y = (live.date || '').slice(0,4) || '不明';
+      byYear[y] = byYear[y] || [];
+      byYear[y].push(live);
+    });
+    var years = Object.keys(byYear).sort(function(a,b){ return b < a ? -1 : 1; });
+    var currentYear = todayStr.slice(0,4);
+    years.forEach(function(year){
+      var group = document.createElement('div');
+      group.className = 'year-group';
+      var isCurrentYear = (year === currentYear);
+      var isOpen = isCurrentYear ? true : !!state.expandedYears[year];
+
+      if (isCurrentYear){
+        var plainHeader = document.createElement('div');
+        plainHeader.className = 'year-header year-header-static';
+        var label0 = document.createElement('span');
+        label0.textContent = year;
+        var count0 = document.createElement('span');
+        count0.className = 'year-count';
+        count0.textContent = byYear[year].length + '件';
+        plainHeader.appendChild(label0);
+        plainHeader.appendChild(count0);
+        group.appendChild(plainHeader);
+      } else {
+        var header = document.createElement('button');
+        header.className = 'year-header';
+        var chevron = document.createElement('span');
+        chevron.className = 'year-chevron';
+        chevron.textContent = isOpen ? '▾' : '▸';
+        var label = document.createElement('span');
+        label.textContent = year;
+        var count = document.createElement('span');
+        count.className = 'year-count';
+        count.textContent = byYear[year].length + '件';
+        header.appendChild(chevron);
+        header.appendChild(label);
+        header.appendChild(count);
+        header.onclick = function(){
+          state.expandedYears[year] = !state.expandedYears[year];
+          render();
+        };
+        group.appendChild(header);
+      }
+
+      if (isOpen){
+        group.appendChild(renderCardList(byYear[year], false));
+      }
+      wrap.appendChild(group);
+    });
+    return wrap;
+  }
+
+  function renderCardList(list, upcomingFlag){
+    var box = document.createElement('div');
+    box.className = 'card-list';
+    if (list.length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.textContent = upcomingFlag ? '予定されているライブはまだありません。' : '過去のライブ記録はまだありません。';
+      box.appendChild(empty);
+      return box;
+    }
+    list.forEach(function(live){
+      box.appendChild(renderCard(live, upcomingFlag));
+    });
+    return box;
+  }
+
+  function renderCard(live, upcomingFlag){
+    var card = document.createElement('div');
+    card.className = 'card' + (upcomingFlag ? ' upcoming' : '');
+    card.onclick = function(){
+      navigate({type:'detail', id: live.id});
+    };
+
+    var dp = fmtDateParts(live.date);
+    var db = document.createElement('div');
+    db.className = 'dateblock';
+    var day = document.createElement('div'); day.className='day'; day.textContent = dp.day;
+    var ym = document.createElement('div'); ym.className='ym'; ym.textContent = dp.ym;
+    db.appendChild(day); db.appendChild(ym);
+
+    var body = document.createElement('div');
+    body.className = 'cardbody';
+    var t = document.createElement('div'); t.className='card-title'; t.textContent = live.title || '無題のライブ';
+    var v = document.createElement('div'); v.className='card-venue'; v.textContent = (live.venue||'') + (live.city ? ' / ' + live.city : '');
+    body.appendChild(t); body.appendChild(v);
+
+    card.appendChild(db);
+    card.appendChild(body);
+
+    if (state.editMode){
+      var del = document.createElement('button');
+      del.className = 'card-del';
+      del.textContent = '削除';
+      del.onclick = function(e){
+        e.stopPropagation();
+        if (confirm('「' + (live.title||'このライブ') + '」を削除しますか？')){
+          state.lives = state.lives.filter(function(l){ return l.id !== live.id; });
+          saveData();
+          render();
+        }
+      };
+      card.appendChild(del);
+    }
+    return card;
+  }
+
+  function downloadBakedHtml(){
+    var payload = JSON.stringify({lives: state.lives, songs: state.songs});
+    var html = PRISTINE_HTML.replace(
+      /(<script type="application\/json" id="baked-data">)([\s\S]*?)(<\/script>)/,
+      function(m, p1, p2, p3){ return p1 + payload.replace(/</g,'\\u003c') + p3; }
+    );
+    html = '<!DOCTYPE html>\n' + html;
+    var blob = new Blob([html], {type:'text/html'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'bercedes-menz-fansite.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function renderImportExportPanel(){
+    var wrap = document.createElement('div');
+    wrap.style.display = 'flex';
+    wrap.style.gap = '10px';
+    wrap.style.marginBottom = '14px';
+    wrap.style.flexWrap = 'wrap';
+
+    var importBtn = document.createElement('button');
+    importBtn.className = 'btn';
+    importBtn.textContent = '⇩ データを取り込む';
+    var exportBtn = document.createElement('button');
+    exportBtn.className = 'btn';
+    exportBtn.textContent = '⇧ 現在のデータを書き出す';
+
+    var downloadBtn = document.createElement('button');
+    downloadBtn.className = 'btn';
+    downloadBtn.textContent = '⬇ 更新済みHTMLをダウンロード';
+    downloadBtn.onclick = function(){ downloadBakedHtml(); };
+
+    importBtn.onclick = function(){
+      state.ieOpen = (state.ieOpen === 'import') ? null : 'import';
+      render();
+    };
+    exportBtn.onclick = function(){
+      state.ieOpen = (state.ieOpen === 'export') ? null : 'export';
+      render();
+    };
+
+    wrap.appendChild(importBtn);
+    wrap.appendChild(exportBtn);
+    wrap.appendChild(downloadBtn);
+
+    var outer = document.createElement('div');
+    outer.appendChild(wrap);
+    if (state.ieOpen === 'import'){
+      outer.appendChild(buildImportForm(function(){ state.ieOpen = null; render(); }));
+    } else if (state.ieOpen === 'export'){
+      outer.appendChild(buildExportPanel(function(){ state.ieOpen = null; render(); }));
+    }
+    return outer;
+  }
+
+  function buildImportForm(onDone){
+    var form = document.createElement('div');
+    form.className = 'inline-form';
+    var label = document.createElement('div');
+    label.style.fontFamily = 'var(--font-mono)';
+    label.style.fontSize = '10px';
+    label.style.letterSpacing = '0.1em';
+    label.style.color = 'var(--chrome-dim)';
+    label.style.textTransform = 'uppercase';
+    label.textContent = 'JSON配列を貼り付け（同じ日付+タイトルの既存ライブは空欄だけ補完、新規は追加されます）';
+    var ta = document.createElement('textarea');
+    ta.rows = 8;
+    ta.style.width = '100%';
+    ta.style.background = '#0c0d0f';
+    ta.style.border = '1px solid var(--line)';
+    ta.style.color = 'var(--text)';
+    ta.style.padding = '10px';
+    ta.style.borderRadius = '2px';
+    ta.style.fontFamily = 'var(--font-mono)';
+    ta.style.fontSize = '12px';
+    ta.placeholder = '[\n  {"date":"2026-09-01","title":"...","venue":"...","city":"","setlist":["曲1","曲2"]}\n]';
+
+    var btnRow = document.createElement('div');
+    btnRow.style.display = 'flex';
+    btnRow.style.gap = '8px';
+    var okBtn = document.createElement('button');
+    okBtn.className = 'btn btn-accent';
+    okBtn.textContent = '取り込む';
+    var cancelBtn = document.createElement('button');
+    cancelBtn.className = 'btn';
+    cancelBtn.textContent = 'キャンセル';
+    cancelBtn.onclick = function(){ onDone(); };
+
+    okBtn.onclick = function(){
+      var parsed;
+      try{ parsed = JSON.parse(ta.value); } catch(e){ alert('JSONの形式が正しくありません: ' + e.message); return; }
+      if (!Array.isArray(parsed)){ alert('JSON配列（[ ... ]）を貼り付けてください'); return; }
+      var result = mergeImportedLives(parsed);
+      alert('取り込み完了：新規 ' + result.added + ' 件 / 更新 ' + result.updated + ' 件');
+      onDone();
+    };
+
+    btnRow.appendChild(okBtn);
+    btnRow.appendChild(cancelBtn);
+    form.appendChild(label);
+    form.appendChild(ta);
+    form.appendChild(btnRow);
+    return form;
+  }
+
+  function buildExportPanel(onDone){
+    var form = document.createElement('div');
+    form.className = 'inline-form';
+    var label = document.createElement('div');
+    label.style.fontFamily = 'var(--font-mono)';
+    label.style.fontSize = '10px';
+    label.style.letterSpacing = '0.1em';
+    label.style.color = 'var(--chrome-dim)';
+    label.style.textTransform = 'uppercase';
+    label.textContent = '現在のデータ（このJSONを渡すと、次回以降の更新のベースにできます）';
+    var ta = document.createElement('textarea');
+    ta.rows = 10;
+    ta.readOnly = true;
+    ta.style.width = '100%';
+    ta.style.background = '#0c0d0f';
+    ta.style.border = '1px solid var(--line)';
+    ta.style.color = 'var(--text)';
+    ta.style.padding = '10px';
+    ta.style.borderRadius = '2px';
+    ta.style.fontFamily = 'var(--font-mono)';
+    ta.style.fontSize = '12px';
+    ta.value = JSON.stringify(state.lives, null, 2);
+
+    var btnRow = document.createElement('div');
+    btnRow.style.display = 'flex';
+    btnRow.style.gap = '8px';
+    var copyBtn = document.createElement('button');
+    copyBtn.className = 'btn btn-accent';
+    copyBtn.textContent = 'コピー';
+    copyBtn.onclick = function(){
+      ta.select();
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(ta.value).then(function(){
+          copyBtn.textContent = 'コピーしました';
+          setTimeout(function(){ copyBtn.textContent = 'コピー'; }, 1500);
+        }).catch(function(){ document.execCommand('copy'); });
+      } else {
+        document.execCommand('copy');
+      }
+    };
+    var closeBtn = document.createElement('button');
+    closeBtn.className = 'btn';
+    closeBtn.textContent = '閉じる';
+    closeBtn.onclick = function(){ onDone(); };
+
+    btnRow.appendChild(copyBtn);
+    btnRow.appendChild(closeBtn);
+    form.appendChild(label);
+    form.appendChild(ta);
+    form.appendChild(btnRow);
+    return form;
+  }
+
+  function mergeImportedLives(items){
+    var added = 0, updated = 0;
+    items.forEach(function(item){
+      if (!item || !item.date) return;
+      var key = (item.date || '') + '|' + (item.title || '');
+      var existing = state.lives.find(function(l){
+        return ((l.date || '') + '|' + (l.title || '')) === key;
+      });
+      if (existing){
+        if (!existing.venue && item.venue) existing.venue = item.venue;
+        if (!existing.city && item.city) existing.city = item.city;
+        if ((!existing.setlist || existing.setlist.length === 0) && item.setlist && item.setlist.length) existing.setlist = item.setlist;
+        if ((!existing.photos || existing.photos.length === 0) && item.photos && item.photos.length) existing.photos = item.photos;
+        if (!existing.videoUrl && item.videoUrl) existing.videoUrl = item.videoUrl;
+        if ((!existing.videos || existing.videos.length === 0) && item.videos && item.videos.length) existing.videos = item.videos;
+        if (!existing.setlistTweetUrl && item.setlistTweetUrl) existing.setlistTweetUrl = item.setlistTweetUrl;
+        if (!existing.flyerUrl && item.flyerUrl) existing.flyerUrl = item.flyerUrl;
+        if (!existing.ticketUrl && item.ticketUrl) existing.ticketUrl = item.ticketUrl;
+        updated++;
+      } else {
+        state.lives.push({
+          id: uid(),
+          date: item.date,
+          venue: item.venue || '',
+          city: item.city || '',
+          title: item.title || '',
+          setlist: item.setlist || [],
+          photos: item.photos || [],
+          videoUrl: item.videoUrl || '',
+          videos: item.videos || [],
+          setlistTweetUrl: item.setlistTweetUrl || '',
+          flyerUrl: item.flyerUrl || '',
+          ticketUrl: item.ticketUrl || ''
+        });
+        added++;
+      }
+    });
+    saveData();
+    render();
+    return {added: added, updated: updated};
+  }
+
+  function renderSongMasterPanel(){
+    var wrap = document.createElement('div');
+    var btn = document.createElement('button');
+    btn.className = 'btn';
+    btn.textContent = '🎵 曲マスタを管理';
+    btn.style.marginBottom = '10px';
+    btn.onclick = function(){
+      state.songMasterOpen = !state.songMasterOpen;
+      render();
+    };
+    wrap.appendChild(btn);
+    if (state.songMasterOpen){
+      wrap.appendChild(renderSongMasterEditor());
+    }
+    return wrap;
+  }
+
+  function renderSongMasterEditor(){
+    var box = document.createElement('div');
+    box.className = 'inline-form';
+
+    var counts = {};
+    computeSongStats().forEach(function(s){ counts[s.name] = s.count; });
+
+    var songsSorted = state.songs.slice().sort(function(a,b){
+      var ca = counts[a.title] || 0, cb = counts[b.title] || 0;
+      if (cb !== ca) return cb - ca;
+      return a.title < b.title ? -1 : 1;
+    });
+
+    var list = document.createElement('div');
+    list.style.display = 'flex';
+    list.style.flexDirection = 'column';
+    list.style.gap = '10px';
+    list.style.maxHeight = '420px';
+    list.style.overflowY = 'auto';
+
+    songsSorted.forEach(function(song){
+      list.appendChild(renderSongMasterRow(song, counts[song.title] || 0));
+    });
+    box.appendChild(list);
+
+    var addRow = document.createElement('div');
+    addRow.className = 'form-row';
+    addRow.style.marginTop = '12px';
+    var f = fieldWrap('新しい曲をマスタに登録', 'text', '例：アクセル');
+    addRow.appendChild(f.wrap);
+    var addBtn = document.createElement('button');
+    addBtn.className = 'btn btn-accent';
+    addBtn.textContent = '登録';
+    addBtn.onclick = function(){
+      var v = f.input.value.trim();
+      if (!v){ return; }
+      if (findSongByTitle(v)){ alert('同名の曲がすでに登録されています'); return; }
+      state.songs.push({ id: uid(), title: v, aliases: [v] });
+      saveSongs();
+      render();
+    };
+    box.appendChild(addRow);
+    box.appendChild(addBtn);
+    return box;
+  }
+
+  function renderSongMasterRow(song, count){
+    var row = document.createElement('div');
+    row.style.border = '1px solid var(--line)';
+    row.style.borderRadius = '2px';
+    row.style.padding = '10px 12px';
+    row.style.background = 'var(--surface-2)';
+
+    var top = document.createElement('div');
+    top.style.display = 'flex';
+    top.style.alignItems = 'center';
+    top.style.gap = '10px';
+
+    var titleInput = document.createElement('input');
+    titleInput.type = 'text';
+    titleInput.value = song.title;
+    titleInput.style.flex = '1';
+    titleInput.style.background = '#0c0d0f';
+    titleInput.style.border = '1px solid var(--line)';
+    titleInput.style.color = 'var(--text)';
+    titleInput.style.padding = '6px 8px';
+    titleInput.style.borderRadius = '2px';
+    titleInput.style.fontFamily = 'var(--font-display)';
+
+    var countLabel = document.createElement('div');
+    countLabel.style.fontFamily = 'var(--font-mono)';
+    countLabel.style.fontSize = '11px';
+    countLabel.style.color = 'var(--chrome-dim)';
+    countLabel.style.whiteSpace = 'nowrap';
+    countLabel.textContent = count + '回';
+
+    var renameBtn = document.createElement('button');
+    renameBtn.className = 'btn';
+    renameBtn.textContent = '名前を保存';
+    renameBtn.onclick = function(){
+      var newTitle = titleInput.value.trim();
+      if (!newTitle) return;
+      if (newTitle !== song.title && findSongByTitle(newTitle)){
+        alert('同名の曲がすでに存在します');
+        return;
+      }
+      if (song.aliases.indexOf(song.title) === -1) song.aliases.push(song.title);
+      song.title = newTitle;
+      if (song.aliases.indexOf(newTitle) === -1) song.aliases.push(newTitle);
+      saveSongs();
+      render();
+    };
+
+    var delBtn = document.createElement('button');
+    delBtn.className = 'btn';
+    delBtn.textContent = '削除';
+    delBtn.onclick = function(){
+      if (!confirm('「' + song.title + '」を曲マスタから削除しますか？（過去のセットリストの表記自体は残ります）')) return;
+      state.songs = state.songs.filter(function(s){ return s.id !== song.id; });
+      saveSongs();
+      render();
+    };
+
+    top.appendChild(titleInput);
+    top.appendChild(countLabel);
+    top.appendChild(renameBtn);
+    top.appendChild(delBtn);
+    row.appendChild(top);
+
+    var aliasWrap = document.createElement('div');
+    aliasWrap.style.display = 'flex';
+    aliasWrap.style.flexWrap = 'wrap';
+    aliasWrap.style.gap = '6px';
+    aliasWrap.style.marginTop = '8px';
+
+    (song.aliases || []).forEach(function(alias, idx){
+      var chip = document.createElement('span');
+      chip.style.display = 'inline-flex';
+      chip.style.alignItems = 'center';
+      chip.style.gap = '6px';
+      chip.style.background = '#0c0d0f';
+      chip.style.border = '1px solid var(--line)';
+      chip.style.borderRadius = '2px';
+      chip.style.padding = '3px 8px';
+      chip.style.fontFamily = 'var(--font-mono)';
+      chip.style.fontSize = '11px';
+      chip.style.color = 'var(--text-dim)';
+      var span = document.createElement('span');
+      span.textContent = alias;
+      chip.appendChild(span);
+      if ((song.aliases.length > 1)){
+        var x = document.createElement('button');
+        x.textContent = '×';
+        x.style.background = 'none';
+        x.style.border = 'none';
+        x.style.color = 'var(--text-dim)';
+        x.style.cursor = 'pointer';
+        x.onclick = function(){
+          song.aliases.splice(idx,1);
+          saveSongs();
+          render();
+        };
+        chip.appendChild(x);
+      }
+      aliasWrap.appendChild(chip);
+    });
+
+    var aliasInput = document.createElement('input');
+    aliasInput.type = 'text';
+    aliasInput.placeholder = '表記ゆれを追加';
+    aliasInput.style.background = '#0c0d0f';
+    aliasInput.style.border = '1px solid var(--line)';
+    aliasInput.style.color = 'var(--text)';
+    aliasInput.style.padding = '3px 8px';
+    aliasInput.style.borderRadius = '2px';
+    aliasInput.style.fontFamily = 'var(--font-mono)';
+    aliasInput.style.fontSize = '11px';
+    aliasInput.style.width = '140px';
+    var aliasAddBtn = document.createElement('button');
+    aliasAddBtn.textContent = '+ 追加';
+    aliasAddBtn.className = 'btn';
+    aliasAddBtn.style.padding = '4px 10px';
+    aliasAddBtn.style.fontSize = '10px';
+    aliasAddBtn.onclick = function(){
+      var v = aliasInput.value.trim();
+      if (!v) return;
+      if (song.aliases.indexOf(v) !== -1) return;
+      song.aliases.push(v);
+      saveSongs();
+      render();
+    };
+    aliasWrap.appendChild(aliasInput);
+    aliasWrap.appendChild(aliasAddBtn);
+
+    row.appendChild(aliasWrap);
+    return row;
+  }
+
+  function renderEditBasicInfoForm(live){
+    var wrap = document.createElement('div');
+    var toggleBtn = document.createElement('button');
+    toggleBtn.className = 'btn';
+    toggleBtn.textContent = '基本情報を編集';
+    toggleBtn.style.marginBottom = '10px';
+    toggleBtn.onclick = function(){
+      state.basicInfoEditOpen = (state.basicInfoEditOpen === live.id) ? null : live.id;
+      render();
+    };
+    wrap.appendChild(toggleBtn);
+    if (state.basicInfoEditOpen === live.id){
+      wrap.appendChild(buildBasicInfoForm(live));
+    }
+    return wrap;
+  }
+
+  function buildBasicInfoForm(live){
+    var form = document.createElement('div');
+    form.className = 'inline-form';
+
+    var row1 = document.createElement('div'); row1.className = 'form-row';
+    var dateLabel = fieldWrap('日付', 'date', '');
+    dateLabel.input.value = live.date || '';
+    var venueLabel = fieldWrap('会場', 'text', '');
+    venueLabel.input.value = live.venue || '';
+    row1.appendChild(dateLabel.wrap); row1.appendChild(venueLabel.wrap);
+
+    var row2 = document.createElement('div'); row2.className = 'form-row';
+    var cityLabel = fieldWrap('都市', 'text', '');
+    cityLabel.input.value = live.city || '';
+    var titleLabel = fieldWrap('ライブタイトル', 'text', '');
+    titleLabel.input.value = live.title || '';
+    row2.appendChild(cityLabel.wrap); row2.appendChild(titleLabel.wrap);
+
+    var row3 = document.createElement('div'); row3.className = 'form-row';
+    var ticketLabel = fieldWrap('チケットリンク（開催予定のみ表示）', 'text', 'https://...');
+    ticketLabel.input.value = live.ticketUrl || '';
+    row3.appendChild(ticketLabel.wrap);
+
+    var btnRow = document.createElement('div');
+    btnRow.style.display = 'flex';
+    btnRow.style.gap = '8px';
+
+    var saveBtn = document.createElement('button');
+    saveBtn.className = 'btn btn-accent';
+    saveBtn.textContent = '保存する';
+    saveBtn.onclick = function(){
+      var d = dateLabel.input.value;
+      if (!d){ alert('日付を入力してください'); return; }
+      var t = ticketLabel.input.value.trim();
+      if (t && !isSafeUrl(t)){ alert('http(s)から始まるURLを入力してください'); return; }
+      live.date = d;
+      live.venue = venueLabel.input.value.trim();
+      live.city = cityLabel.input.value.trim();
+      live.title = titleLabel.input.value.trim();
+      live.ticketUrl = t;
+      saveData();
+      render();
+    };
+
+    var delBtn = document.createElement('button');
+    delBtn.className = 'btn';
+    delBtn.textContent = 'このライブを削除';
+    delBtn.onclick = function(){
+      if (!confirm('「' + (live.title||'このライブ') + '」を削除しますか？')) return;
+      state.lives = state.lives.filter(function(l){ return l.id !== live.id; });
+      saveData();
+      navigate({type:'top'});
+    };
+
+    btnRow.appendChild(saveBtn);
+    btnRow.appendChild(delBtn);
+    form.appendChild(row1);
+    form.appendChild(row2);
+    form.appendChild(row3);
+    form.appendChild(btnRow);
+    return form;
+  }
+
+  function renderAddLiveButton(){
+    var holder = document.createElement('div');
+    var btn = document.createElement('button');
+    btn.className = 'add-btn';
+    btn.textContent = '＋ ライブを追加';
+    btn.onclick = function(){
+      holder.innerHTML = '';
+      holder.appendChild(buildAddLiveForm(function(){
+        holder.innerHTML = '';
+        holder.appendChild(renderAddLiveButtonInner());
+      }));
+    };
+    holder.appendChild(btn);
+    function renderAddLiveButtonInner(){
+      var b2 = document.createElement('button');
+      b2.className='add-btn'; b2.textContent='＋ ライブを追加';
+      b2.onclick = btn.onclick;
+      return b2;
+    }
+    return holder;
+  }
+
+  function buildAddLiveForm(onDone){
+    var form = document.createElement('div');
+    form.className = 'inline-form';
+
+    var row1 = document.createElement('div'); row1.className = 'form-row';
+    var dateLabel = fieldWrap('日付', 'date', '');
+    var venueLabel = fieldWrap('会場', 'text', '例：Zepp DiverCity');
+    row1.appendChild(dateLabel.wrap); row1.appendChild(venueLabel.wrap);
+
+    var row2 = document.createElement('div'); row2.className = 'form-row';
+    var cityLabel = fieldWrap('都市', 'text', '例：東京');
+    var titleLabel = fieldWrap('ライブタイトル', 'text', '例：ワンマンライブ「巡航」');
+    row2.appendChild(cityLabel.wrap); row2.appendChild(titleLabel.wrap);
+
+    var btn = document.createElement('button');
+    btn.className = 'btn btn-accent';
+    btn.textContent = '追加する';
+    btn.onclick = function(){
+      var dateVal = dateLabel.input.value;
+      if (!dateVal){ alert('日付を入力してください'); return; }
+      state.lives.push({
+        id: uid(),
+        date: dateVal,
+        venue: venueLabel.input.value.trim(),
+        city: cityLabel.input.value.trim(),
+        title: titleLabel.input.value.trim(),
+        setlist: [],
+        photos: [],
+        videoUrl: '',
+        videos: [],
+        setlistTweetUrl: '',
+        flyerUrl: '',
+        ticketUrl: ''
+      });
+      saveData();
+      render();
+    };
+
+    form.appendChild(row1);
+    form.appendChild(row2);
+    form.appendChild(btn);
+    return form;
+  }
+
+  function fieldWrap(labelText, type, placeholder){
+    var wrap = document.createElement('label');
+    var span = document.createElement('span'); span.textContent = labelText;
+    var input = document.createElement('input');
+    input.type = type;
+    input.placeholder = placeholder || '';
+    wrap.appendChild(span);
+    wrap.appendChild(input);
+    return {wrap: wrap, input: input};
+  }
+
+  // ---------------- detail view ----------------
+  function renderDetailView(id){
+    var live = state.lives.find(function(l){ return l.id === id; });
+    var wrap = document.createElement('div');
+    if (!live){
+      var back = document.createElement('button');
+      back.className='back-link'; back.textContent='← SCHEDULEに戻る';
+      back.onclick = function(){ navigate({type:'top'}); };
+      wrap.appendChild(back);
+      var msg = document.createElement('div'); msg.className='empty-state'; msg.textContent='このライブは見つかりませんでした。';
+      wrap.appendChild(msg);
+      return wrap;
+    }
+
+    var back = document.createElement('button');
+    back.className='back-link'; back.textContent='← SCHEDULEに戻る';
+    back.onclick = function(){ navigate({type:'top'}); };
+    wrap.appendChild(back);
+
+    var header = document.createElement('div');
+    header.className = 'detail-header';
+    var dp = fmtDateParts(live.date);
+    var dateEl = document.createElement('div');
+    dateEl.className = 'detail-date';
+    dateEl.textContent = live.date;
+    var titleEl = document.createElement('h2');
+    titleEl.className = 'detail-title';
+    titleEl.textContent = live.title || '無題のライブ';
+    var venueEl = document.createElement('div');
+    venueEl.className = 'detail-venue';
+    venueEl.textContent = (live.venue||'') + (live.city ? ' / ' + live.city : '');
+    header.appendChild(dateEl); header.appendChild(titleEl); header.appendChild(venueEl);
+    if (live.date >= todayStr && live.ticketUrl){
+      var ticketLink = document.createElement('a');
+      ticketLink.className = 'detail-ticket-btn';
+      ticketLink.href = live.ticketUrl;
+      ticketLink.target = '_blank';
+      ticketLink.rel = 'noopener noreferrer';
+      ticketLink.textContent = 'チケットを購入する ↗';
+      header.appendChild(ticketLink);
+    }
+    wrap.appendChild(header);
+
+    if (state.editMode){
+      wrap.appendChild(renderEditBasicInfoForm(live));
+    }
+
+    // ANNOUNCEMENT FLYER
+    wrap.appendChild(sectionLabel('ANNOUNCEMENT / 告知画像'));
+    wrap.appendChild(renderFlyerEmbed(live));
+    if (state.editMode){
+      wrap.appendChild(renderFlyerForm(live));
+    }
+
+    // SETLIST
+    wrap.appendChild(sectionLabel('SETLIST'));
+    wrap.appendChild(renderSetlistTweetEmbed(live));
+    wrap.appendChild(renderSetlist(live));
+    if (state.editMode){
+      wrap.appendChild(renderAddSongForm(live));
+      wrap.appendChild(renderBulkAddSongForm(live));
+      wrap.appendChild(renderSetlistTweetForm(live));
+    }
+
+    // PHOTOS
+    wrap.appendChild(sectionLabel('PHOTOS'));
+    wrap.appendChild(renderPhotoGrid(live));
+    if (state.editMode){
+      wrap.appendChild(renderAddPhotoForm(live));
+    }
+
+    // VIDEO
+    wrap.appendChild(sectionLabel('VIDEO (X)'));
+    wrap.appendChild(renderVideoSection(live));
+    if (state.editMode){
+      wrap.appendChild(renderVideoForm(live));
+    }
+
+    return wrap;
+  }
+
+  function renderSetlist(live){
+    var ul = document.createElement('ul');
+    ul.className = 'setlist';
+    if (!live.setlist || live.setlist.length === 0){
+      var li = document.createElement('li');
+      li.style.color = 'var(--text-dim)';
+      li.style.fontSize = '13px';
+      li.style.border = 'none';
+      li.textContent = 'セットリストはまだ登録されていません。';
+      ul.appendChild(li);
+      return ul;
+    }
+    var songCount = 0;
+    live.setlist.forEach(function(song, idx){
+      var li = document.createElement('li');
+      var isMC = (String(song).trim() === 'MC');
+      var no = document.createElement('div'); no.className='track-no';
+      if (isMC){
+        no.textContent = '';
+        li.className = 'mc-row';
+      } else {
+        songCount++;
+        no.textContent = String(songCount).padStart(2,'0');
+      }
+      var t = document.createElement('div'); t.className='track-title'; t.textContent = song;
+      li.appendChild(no); li.appendChild(t);
+      if (state.editMode){
+        var del = document.createElement('button');
+        del.className='track-del'; del.textContent='削除';
+        del.onclick = function(){
+          live.setlist.splice(idx,1);
+          saveData(); render();
+        };
+        li.appendChild(del);
+      }
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+
+  function getKnownSongNames(){
+    var counts = {};
+    computeSongStats().forEach(function(s){ counts[s.name] = s.count; });
+    var names = state.songs.map(function(s){ return s.title; });
+    names.sort(function(a,b){
+      var ca = counts[a] || 0, cb = counts[b] || 0;
+      if (cb !== ca) return cb - ca;
+      return a < b ? -1 : 1;
+    });
+    return names;
+  }
+
+  function renderAddSongForm(live){
+    var form = document.createElement('div');
+    form.className = 'inline-form';
+    var radioName = 'songchoice-' + live.id;
+
+    var label = document.createElement('div');
+    label.style.fontFamily = 'var(--font-mono)';
+    label.style.fontSize = '10px';
+    label.style.letterSpacing = '0.1em';
+    label.style.color = 'var(--chrome-dim)';
+    label.style.textTransform = 'uppercase';
+    label.textContent = '曲を選択';
+    form.appendChild(label);
+
+    var listBox = document.createElement('div');
+    listBox.className = 'song-picker';
+
+    var newInputWrap = document.createElement('div');
+    newInputWrap.style.display = 'none';
+    newInputWrap.style.marginTop = '8px';
+    var newField = fieldWrap('新しい曲名', 'text', '例：アクセル');
+    newInputWrap.appendChild(newField.wrap);
+
+    function addRadioOption(value, displayText, isSpecial){
+      var optRow = document.createElement('label');
+      optRow.className = 'song-picker-row' + (isSpecial ? ' special' : '');
+      var radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = radioName;
+      radio.value = value;
+      radio.onclick = function(){
+        newInputWrap.style.display = (value === '__new__') ? 'block' : 'none';
+      };
+      var span = document.createElement('span');
+      span.textContent = displayText;
+      optRow.appendChild(radio);
+      optRow.appendChild(span);
+      listBox.appendChild(optRow);
+    }
+
+    addRadioOption('MC', 'MC（MCブレイク）', true);
+    getKnownSongNames().forEach(function(name){
+      addRadioOption(name, name, false);
+    });
+    addRadioOption('__new__', '＋ 新しい曲名を入力', true);
+
+    form.appendChild(listBox);
+    form.appendChild(newInputWrap);
+
+    var btn = document.createElement('button');
+    btn.className = 'btn btn-accent';
+    btn.style.marginTop = '10px';
+    btn.textContent = 'セットリストに追加';
+    btn.onclick = function(){
+      var checked = listBox.querySelector('input[name="' + radioName + '"]:checked');
+      if (!checked){ alert('曲を選択してください'); return; }
+      var v;
+      if (checked.value === '__new__'){
+        v = newField.input.value.trim();
+        if (!v){ alert('新しい曲名を入力してください'); return; }
+        if (v !== 'MC') ensureSongRegistered(v);
+      } else {
+        v = checked.value;
+      }
+      live.setlist = live.setlist || [];
+      live.setlist.push(v);
+      saveData(); render();
+    };
+    form.appendChild(btn);
+    return form;
+  }
+
+  function renderBulkAddSongForm(live){
+    var form = document.createElement('div');
+    form.className = 'inline-form';
+    var label = document.createElement('div');
+    label.style.fontFamily = 'var(--font-mono)';
+    label.style.fontSize = '10px';
+    label.style.letterSpacing = '0.1em';
+    label.style.color = 'var(--chrome-dim)';
+    label.style.textTransform = 'uppercase';
+    label.textContent = 'まとめて貼り付け（1行1曲）';
+    form.appendChild(label);
+
+    var ta = document.createElement('textarea');
+    ta.rows = 6;
+    ta.style.width = '100%';
+    ta.style.background = '#0c0d0f';
+    ta.style.border = '1px solid var(--line)';
+    ta.style.color = 'var(--text)';
+    ta.style.padding = '10px';
+    ta.style.borderRadius = '2px';
+    ta.style.fontFamily = 'var(--font-mono)';
+    ta.style.fontSize = '12px';
+    ta.style.marginTop = '8px';
+    ta.placeholder = '開口部\n匣\n天蓋\nMC\n幸福な子供たち';
+    form.appendChild(ta);
+
+    var btn = document.createElement('button');
+    btn.className = 'btn btn-accent';
+    btn.style.marginTop = '10px';
+    btn.textContent = 'この内容をセットリストに追加';
+    btn.onclick = function(){
+      var lines = ta.value.split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+      if (lines.length === 0){ alert('曲名を1行ずつ入力してください'); return; }
+      live.setlist = live.setlist || [];
+      lines.forEach(function(line){
+        if (line !== 'MC') ensureSongRegistered(stripEncoreMarker(line));
+        live.setlist.push(line);
+      });
+      saveData();
+      render();
+    };
+    form.appendChild(btn);
+
+    var hint = document.createElement('div');
+    hint.className = 'hint';
+    hint.textContent = '※ 1行につき1曲（またはMC）。新しい曲名は自動で曲マスタにも登録されます。';
+    form.appendChild(hint);
+    return form;
+  }
+
+  function renderPhotoGrid(live){
+    var list = document.createElement('div');
+    list.className = 'photo-embed-list';
+    if (!live.photos || live.photos.length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.textContent = '写真ツイートはまだ登録されていません。';
+      return empty;
+    }
+    live.photos.forEach(function(url, idx){
+      var item = document.createElement('div');
+      item.className = 'photo-embed-item';
+      item.appendChild(renderTweetEmbed(url, '', 'Xで写真投稿を開く ↗'));
+      if (state.editMode){
+        var del = document.createElement('button');
+        del.className='photo-del'; del.textContent='この写真ツイートを削除';
+        del.onclick = function(){
+          live.photos.splice(idx,1);
+          saveData(); render();
+        };
+        item.appendChild(del);
+      }
+      list.appendChild(item);
+    });
+    return list;
+  }
+
+  function renderAddPhotoForm(live){
+    var form = document.createElement('div');
+    form.className = 'inline-form';
+    var row = document.createElement('div'); row.className='form-row';
+    var f = fieldWrap('写真投稿のX投稿URL', 'text', 'https://x.com/.../status/...');
+    row.appendChild(f.wrap);
+    var btn = document.createElement('button');
+    btn.className='btn btn-accent'; btn.textContent='写真ツイートを追加';
+    btn.onclick = function(){
+      var v = f.input.value.trim();
+      if (!isSafeUrl(v)){ alert('http(s)から始まるURLを入力してください'); return; }
+      live.photos = live.photos || [];
+      live.photos.push(v);
+      saveData(); render();
+    };
+    form.appendChild(row);
+    form.appendChild(btn);
+    var hint = document.createElement('div');
+    hint.className='hint';
+    hint.textContent = '※ 会場写真を貼ったXの投稿のURLを入れると、埋め込み表示されます（複数追加できます）';
+    form.appendChild(hint);
+    return form;
+  }
+
+  function renderTweetEmbed(url, emptyText, linkText){
+    var box = document.createElement('div');
+    if (!url){
+      var none = document.createElement('div');
+      none.className = 'no-video';
+      none.textContent = emptyText;
+      box.appendChild(none);
+      return box;
+    }
+    var embedBox = document.createElement('div');
+    embedBox.className = 'video-embed';
+    var bq = document.createElement('blockquote');
+    bq.className = 'twitter-tweet';
+    var a = document.createElement('a');
+    a.href = url;
+    bq.appendChild(a);
+    embedBox.appendChild(bq);
+    box.appendChild(embedBox);
+
+    var link = document.createElement('a');
+    link.className = 'video-fallback';
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = linkText;
+    box.appendChild(link);
+
+    loadTwitterWidgets();
+    return box;
+  }
+
+  function renderVideoSection(live){
+    var list = document.createElement('div');
+    list.className = 'photo-embed-list';
+    var videos = live.videos || (live.videoUrl ? [live.videoUrl] : []);
+    if (videos.length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.textContent = 'Xの動画はまだ登録されていません。';
+      return empty;
+    }
+    videos.forEach(function(url, idx){
+      var item = document.createElement('div');
+      item.className = 'photo-embed-item';
+      item.appendChild(renderTweetEmbed(url, '', 'Xで動画を開く ↗'));
+      if (state.editMode){
+        var del = document.createElement('button');
+        del.className='photo-del'; del.textContent='この動画ツイートを削除';
+        del.onclick = function(){
+          live.videos = videos;
+          live.videos.splice(idx,1);
+          saveData(); render();
+        };
+        item.appendChild(del);
+      }
+      list.appendChild(item);
+    });
+    return list;
+  }
+
+  function renderFlyerEmbed(live){
+    return renderTweetEmbed(live.flyerUrl, '告知画像はまだ登録されていません。', 'Xで告知投稿を開く ↗');
+  }
+
+  function renderFlyerForm(live){
+    var form = document.createElement('div');
+    form.className = 'inline-form';
+    var row = document.createElement('div'); row.className='form-row';
+    var f = fieldWrap('告知画像のX投稿URL', 'text', 'https://x.com/.../status/...');
+    f.input.value = live.flyerUrl || '';
+    row.appendChild(f.wrap);
+    var btn = document.createElement('button');
+    btn.className='btn btn-accent'; btn.textContent='告知投稿を保存';
+    btn.onclick = function(){
+      var v = f.input.value.trim();
+      if (v && !isSafeUrl(v)){ alert('http(s)から始まるURLを入力してください'); return; }
+      live.flyerUrl = v;
+      saveData(); render();
+    };
+    form.appendChild(row);
+    form.appendChild(btn);
+    var hint = document.createElement('div');
+    hint.className='hint';
+    hint.textContent = '※ 告知フライヤー画像を貼ったXの投稿のURLを入れると、埋め込み表示されます';
+    form.appendChild(hint);
+    return form;
+  }
+
+  function renderSetlistTweetEmbed(live){
+    if (!live.setlistTweetUrl) return document.createElement('div');
+    return renderTweetEmbed(live.setlistTweetUrl, '', 'Xでセットリスト投稿を開く ↗');
+  }
+
+  function renderSetlistTweetForm(live){
+    var form = document.createElement('div');
+    form.className = 'inline-form';
+    var row = document.createElement('div'); row.className='form-row';
+    var f = fieldWrap('セットリスト画像のX投稿URL', 'text', 'https://x.com/.../status/...');
+    f.input.value = live.setlistTweetUrl || '';
+    row.appendChild(f.wrap);
+    var btn = document.createElement('button');
+    btn.className='btn btn-accent'; btn.textContent='セットリスト投稿を保存';
+    btn.onclick = function(){
+      var v = f.input.value.trim();
+      if (v && !isSafeUrl(v)){ alert('http(s)から始まるURLを入力してください'); return; }
+      live.setlistTweetUrl = v;
+      saveData(); render();
+    };
+    form.appendChild(row);
+    form.appendChild(btn);
+    var hint = document.createElement('div');
+    hint.className='hint';
+    hint.textContent = '※ セットリスト画像を貼ったXの投稿があれば、ここにURLを入れると埋め込み表示されます';
+    form.appendChild(hint);
+    return form;
+  }
+
+  var twttrLoading = false;
+  function loadTwitterWidgets(){
+    if (window.twttr && window.twttr.widgets){
+      window.twttr.widgets.load();
+      return;
+    }
+    if (twttrLoading) return;
+    twttrLoading = true;
+    var s = document.createElement('script');
+    s.src = 'https://platform.twitter.com/widgets.js';
+    s.async = true;
+    s.onload = function(){ if (window.twttr && window.twttr.widgets) window.twttr.widgets.load(); };
+    document.body.appendChild(s);
+  }
+
+  function renderVideoForm(live){
+    var form = document.createElement('div');
+    form.className = 'inline-form';
+    var row = document.createElement('div'); row.className='form-row';
+    var f = fieldWrap('X（Twitter）動画の投稿URL', 'text', 'https://x.com/.../status/...');
+    row.appendChild(f.wrap);
+    var btn = document.createElement('button');
+    btn.className='btn btn-accent'; btn.textContent='この動画ツイートを追加';
+    function addIt(){
+      var v = f.input.value.trim();
+      if (!v) return;
+      if (!isSafeUrl(v)){ alert('http(s)から始まるURLを入力してください'); return; }
+      if (!live.videos) live.videos = live.videoUrl ? [live.videoUrl] : [];
+      live.videos.push(v);
+      live.videoUrl = '';
+      saveData(); render();
+    }
+    btn.onclick = addIt;
+    f.input.addEventListener('keydown', function(e){ if (e.key==='Enter') addIt(); });
+    form.appendChild(row);
+    form.appendChild(btn);
+    var hint = document.createElement('div');
+    hint.className='hint';
+    hint.textContent = '※ その日のライブ映像ポストのURLを貼り付けてください（複数追加できます）';
+    form.appendChild(hint);
+    return form;
+  }
+
+  try{
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('admin') === '1'){ state.editMode = true; }
+  } catch(e){}
+
+  loadData(function(){
+    state.view = parseHash();
+    render();
+    setTimeout(loadTwitterWidgets, 800);
+    setTimeout(loadTwitterWidgets, 2000);
+    setTimeout(loadTwitterWidgets, 4000);
+  });
+})();
+</script>
+</body>
+</html>
